@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Space Invaders - Feria Multidisciplinaria</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #080814;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        #game-container {
+            text-align: center;
+        }
+        /* Lienzo de dibujo HTML5 con sombra neón estilo retro */
+        canvas {
+            background: #000000;
+            border: 3px solid #00f0ff;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+            border-radius: 6px;
+        }
+        .instructions {
+            font-size: 14px;
+            margin-top: 10px;
+            color: #a0a0d0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <canvas id="spaceCanvas" width="800" height="500"></canvas>
+        <div class="instructions">
+            Controles: Flechas - /  para Moverte | Barra Espaciadora para Disparar
+        </div>
+    </div>
+
+<script>
+    // 1. OBTENCIÓN DEL CONTEXTO DE DIBUJO (CANVAS 2D)
+    const canvas = document.getElementById('spaceCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // 2. VARIABLES DE ESTADO Y PUNTUACIÓN
+    let score = 0;
+    let gameOver = false;
+    let gameWin = false;
+
+    // 3. OBJETO JUGADOR (NAVE)
+    const player = {
+        x: canvas.width / 2 - 20, // Posición inicial en X (centrado)
+        y: canvas.height - 40,    // Posición inicial en Y (parte inferior)
+        width: 40,
+        height: 20,
+        speed: 6,                 // Velocidad de movimiento en píxeles
+        dx: 0                     // Dirección actual en X
+    };
+
+    // 4. CONFIGURACIÓN DE BALAS Y ENEMIGOS
+    let bullets = [];
+    let enemies = [];
+    
+    const enemyRows = 4;
+    const enemyCols = 8;
+    const enemyWidth = 40;
+    const enemyHeight = 25;
+    const enemyPadding = 15;
+    const enemyOffsetTop = 50;
+    const enemyOffsetLeft = 60;
+    
+    let enemyDirection = 1;  // 1 = Derecha, -1 = Izquierda
+    let enemySpeed = 1.2;     // Velocidad horizontal de los invasores
+
+    // 5. GENERACIÓN DE LA FLOTA ENEMIGA (MATRIZ 2D DE ENEMIGOS)
+    function initEnemies() {
+        enemies = [];
+        for (let r = 0; r < enemyRows; r++) {
+            for (let c = 0; c < enemyCols; c++) {
+                const x = c * (enemyWidth + enemyPadding) + enemyOffsetLeft;
+                const y = r * (enemyHeight + enemyPadding) + enemyOffsetTop;
+                enemies.push({ x: x, y: y, width: enemyWidth, height: enemyHeight, alive: true });
+            }
+        }
+    }
+    initEnemies();
+
+    // 6. CONTROL DE EVENTOS DE TECLADO (INPUT)
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'Right') player.dx = player.speed;
+        if (e.key === 'ArrowLeft' || e.key === 'Left') player.dx = -player.speed;
+        
+        // Disparar proyectil
+        if (e.key === ' ' || e.code === 'Space') {
+            bullets.push({
+                x: player.x + player.width / 2 - 2, // Centrar bala en la nave
+                y: player.y,
+                width: 4,
+                height: 10,
+                speed: 8
+            });
+        }
+    });
+
+    document.addEventListener('keyup', (e) => {
+        if (['ArrowRight', 'Right', 'ArrowLeft', 'Left'].includes(e.key)) {
+            player.dx = 0; // Detener movimiento al soltar tecla
+        }
+    });
+
+    // 7. LÓGICA DEL JUEGO (ACTUALIZACIÓN DE POSICIONES Y COLISIONES)
+    function update() {
+        if (gameOver || gameWin) return;
+
+        // Movimiento de la nave del jugador
+        player.x += player.dx;
+        // Limitar dentro del lienzo
+        if (player.x < 0) player.x = 0;
+        if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+
+        // Movimiento de Balas
+        bullets.forEach((b, index) => {
+            b.y -= b.speed;
+            if (b.y < 0) bullets.splice(index, 1); // Eliminar bala si sale de la pantalla
+        });
+
+        // Movimiento de Enemigos
+        let hitWall = false;
+        enemies.forEach(e => {
+            if (!e.alive) return;
+            e.x += enemySpeed * enemyDirection;
+            
+            // Detectar si tocan los márgenes laterales
+            if (e.x + e.width >= canvas.width - 20 || e.x <= 20) {
+                hitWall = true;
+            }
+        });
+
+        // Cambio de dirección y descenso de la flota
+        if (hitWall) {
+            enemyDirection *= -1;
+            enemies.forEach(e => {
+                e.y += 15; // Bajar un escalón
+                // Condición de derrota si llegan a la altura del jugador
+                if (e.alive && e.y + e.height >= player.y) {
+                    gameOver = true;
+                }
+            });
+        }
+
+        // Detección de Colisiones (Bounding Box Collision AABB)
+        bullets.forEach((b, bIdx) => {
+            enemies.forEach(e => {
+                if (e.alive && 
+                    b.x < e.x + e.width && 
+                    b.x + b.width > e.x && 
+                    b.y < e.y + e.height && 
+                    b.y + b.height > e.y) {
+                    
+                    e.alive = false;          // Destruir enemigo
+                    bullets.splice(bIdx, 1);  // Eliminar bala
+                    score += 10;              // Incrementar puntuación
+                }
+            });
+        });
+
+        // Condición de Victoria
+        if (enemies.every(e => !e.alive)) {
+            gameWin = true;
+        }
+    }
+
+    // 8. RENDERIZADO VISUAL
+    function draw() {
+        // Limpiar el lienzo antes de redibujar el nuevo cuadro
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Dibujar Jugador
+        ctx.fillStyle = '#00ffcc';
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+
+        // Dibujar Balas
+        ctx.fillStyle = '#ff0055';
+        bullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
+
+        // Dibujar Enemigos
+        enemies.forEach(e => {
+            if (e.alive) {
+                ctx.fillStyle = '#ffcc00';
+                ctx.fillRect(e.x, e.y, e.width, e.height);
+            }
+        });
+
+        // Mostrar Puntuación en pantalla
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '16px Arial';
+        ctx.fillText('Puntuación: ' + score, 20, 30);
+
+        // Pantallas de Fin de Juego
+        if (gameOver) {
+            ctx.fillStyle = '#ff3333';
+            ctx.font = '36px Arial';
+            ctx.fillText('¡GAME OVER!', canvas.width / 2 - 110, canvas.height / 2);
+        } else if (gameWin) {
+            ctx.fillStyle = '#33ff33';
+            ctx.font = '36px Arial';
+            ctx.fillText('¡VICTORIA!', canvas.width / 2 - 90, canvas.height / 2);
+        }
+    }
+
+    // 9. CICLO PRINCIPAL DEL JUEGO (GAME LOOP)
+    function loop() {
+        update();
+        draw();
+        requestAnimationFrame(loop); // Ejecuta a 60 FPS
+    }
+
+    loop(); // Iniciar juego
+</script>
+</body>
+</html>
