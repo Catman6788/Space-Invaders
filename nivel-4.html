@@ -7,7 +7,7 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: #080814;
+            background-color: #000000;
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
@@ -23,8 +23,8 @@
         /* Lienzo de dibujo HTML5 con sombra neón estilo retro */
         canvas {
             background: #000000;
-            border: 3px solid #00f0ff;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+            border: 3px solid #c41700;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
             border-radius: 6px;
         }
         .instructions {
@@ -32,14 +32,13 @@
             margin-top: 10px;
             color: #a0a0d0;
         }
-
         /* Estilos Botones*/
         .myButton {
             box-shadow:inset 0px 1px 0px 0px #54a3f7;
-            background:linear-gradient(to bottom, #007dc1 5%, #0061a7 100%);
-            background-color:#007dc1;
+            background:linear-gradient(to bottom, #c10000 5%, #f30e0e 100%);
+            background-color:#f50f0f;
             border-radius:3px;
-            border:1px solid #124d77;
+            border:1px solid #ff0000;
             display:inline-block;
             cursor:pointer;
             color:#ffffff;
@@ -49,6 +48,7 @@
             text-decoration:none;
             text-shadow:0px 1px 0px #154682;
         }
+        
         .myButton:hover {
             background:linear-gradient(to bottom, #a79c00 5%, #a79c00 100%);
             background-color:#a79c00;
@@ -57,18 +57,61 @@
             position:relative;
             top:1px;
         }
-
-
-
-
+        .botonN2 {
+            box-shadow:inset 0px 1px 0px 0px #54a3f7;
+            background:linear-gradient(to bottom, #c10000 5%, #c10000 100%);
+            background-color:#c10000;
+            border-radius:3px;
+            border:1px solid #c10000;
+            display:inline-block;
+            cursor:pointer;
+            color:#ffffff;
+            font-family:Arial;
+            font-size:13px;
+            padding:6px 24px;
+            text-decoration:none;
+            text-shadow:0px 1px 0px #154682;
+        }
+        .botonN2:hover {
+            background:linear-gradient(to bottom, #a79c00 5%, #a79c00 100%);
+            background-color:#a79c00;
+        }
+        .botonN2:active {
+            position:relative;
+            top:1px;
+        }
+        .botonN3 {
+            box-shadow:inset 0px 1px 0px 0px #54a3f7;
+            background:linear-gradient(to bottom, #c10000 5%, #c10000 100%);
+            background-color:#c10000;
+            border-radius:3px;
+            border:1px solid #c10000;
+            display:inline-block;
+            cursor:pointer;
+            color:#ffffff;
+            font-family:Arial;
+            font-size:13px;
+            padding:6px 24px;
+            text-decoration:none;
+            text-shadow:0px 1px 0px #154682;
+        }
+        .botonN3:hover {
+            background:linear-gradient(to bottom, #a79c00 5%, #a79c00 100%);
+            background-color:#a79c00;
+        }
+        .botonN3:active {
+            position:relative;
+            top:1px;
+        }
+        
     </style>
 </head>
 <body>
 
     <div id="game-container">
-        <a href="nivel-2.html" class="myButton">Nivel 2</a>
-        <a href="nivel-3.html" class="myButton">Nivel 3</a>
-        <div id="saludo"></div>
+        <a href="index.html" class="myButton">< Nivel 1</a>
+        <a href="nivel-2.html" class="botonN2">< Nivel 2 </a>
+        <a href="nivel-3.html" class="botonN3">< Nivel 3 </a>
         <canvas id="spaceCanvas" width="800" height="500"></canvas>
         <div class="instructions">
             Controles: Flechas - /  para Moverte | Barra Espaciadora para Disparar
@@ -99,7 +142,7 @@
     let bullets = [];
     let enemies = [];
     
-    const enemyRows = 4;
+    const enemyRows = 9;
     const enemyCols = 8;
     const enemyWidth = 40;
     const enemyHeight = 25;
@@ -108,7 +151,7 @@
     const enemyOffsetLeft = 60;
     
     let enemyDirection = 1;  // 1 = Derecha, -1 = Izquierda
-    let enemySpeed = 3;     // Velocidad horizontal de los invasores
+    let enemySpeed = 10;     // Velocidad horizontal de los invasores
 
     // 5. GENERACIÓN DE LA FLOTA ENEMIGA (MATRIZ 2D DE ENEMIGOS)
     function initEnemies() {
@@ -224,7 +267,7 @@
         // Dibujar Enemigos
         enemies.forEach(e => {
             if (e.alive) {
-                ctx.fillStyle = '#ffcc00';
+                ctx.fillStyle = '#c41700';
                 ctx.fillRect(e.x, e.y, e.width, e.height);
             }
         });
