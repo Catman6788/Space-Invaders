@@ -66,7 +66,9 @@
 <body>
 
     <div id="game-container">
-        <a href="#" class="myButton">Enemigos</a>
+        <a href="index.html" class="myButton">< Volver</a>
+        <input type="text" id="nFilas" value="8"/>
+        <a onclick="return redibujar()" class="myButton">Redibujar</a>
         <div id="saludo"></div>
         <canvas id="spaceCanvas" width="800" height="500"></canvas>
         <div class="instructions">
@@ -131,10 +133,11 @@
         //pruebas();
 
 
-        function calculateEnemies() {
+        function calculateEnemies(columns) {
+            enemies= []
             let xPoint = 0;
             let yPoint = 0;
-            for (let c = 0; c < enemyCols; c++) {
+            for (let c = 0; c < columns; c++) {
                 let vivo = true
                 //console.log("iteracion " + c);
                 xPoint = c * (enemyWidth + enemyPadding);
@@ -158,10 +161,18 @@
         //         const y = r * (enemyHeight + enemyPadding) + enemyOffsetTop;
         //         enemies.push({ x: x, y: y, width: enemyWidth, height: enemyHeight, alive: true });
         //     }
-        }
-        calculateEnemies();
-        console.log(enemies);
 
+            console.log(enemies);
+        }
+        calculateEnemies(enemyCols);
+
+        function redibujar(){
+            let filas=5;
+            filas = document.getElementById("nFilas").value;
+            console.log(filas)
+            calculateEnemies(filas);
+            draw();
+        }
 
         function update(){
             console.log("corre update")
@@ -176,7 +187,7 @@
             enemies.forEach(
                 (e) => {
                     if (e.alive) {
-                        console.log("posicion elemento: " + e.x);
+                        //console.log("posicion elemento: " + e.x);
                         ctx.fillStyle = '#ffcc00';
                         ctx.fillRect(e.x, e.y, e.width, e.height);
                     }
