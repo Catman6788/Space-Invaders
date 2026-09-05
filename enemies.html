@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Space Invaders - Feria Multidisciplinaria</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div id="game-container">
+        <a href="index.html" class="myButton">< Volver</a>
+        <input type="text" id="nFilas" value="8"/>
+        <a onclick="return redibujar()" class="myButton">Redibujar</a>
+        <div id="saludo"></div>
+        <canvas id="spaceCanvas" width="800" height="500"></canvas>
+        <div class="instructions">
+            Controles: Flechas - /  para Moverte | Barra Espaciadora para Disparar
+        </div>
+    </div>
+
+    <script>
+        // 1. OBTENCIÓN DEL CONTEXTO DE DIBUJO (CANVAS 2D)
+        const canvas = document.getElementById('spaceCanvas');
+        const ctx = canvas.getContext('2d');   
+        
+        let enemies = [];
+
+        const enemyRows = 4;
+        const enemyCols = 8;
+        const enemyWidth = 40;
+        const enemyHeight = 25;
+        const enemyPadding = 15;
+        const enemyOffsetTop = 50;
+        const enemyOffsetLeft = 60;
+        
+        let enemyDirection = 1;  // 1 = Derecha, -1 = Izquierda
+        let enemySpeed = 2;     // Velocidad horizontal de los invasores
+
+        function pruebas() {
+           let names = ["yecid","alvaro","daniel"];
+            console.log(names);
+            names.forEach(
+                (e) => {
+                    console.log("elemento: " + e);
+                }
+            );
+            names.push("tabano");
+            console.log(names);
+
+           let gato1 = {
+                name: "carlitos",
+                tipe: "albino",
+                color:"blanco",
+                edad: 1,
+            }
+            let gato2 = {
+                name: "camacho",
+                tipe: "albino",
+                color:"blanco",
+                edad: 6
+            }
+            let gatos = [gato1, gato2];
+            console.log(gatos);             
+            gatos.forEach(
+                (g) => {
+                    console.log("nombre gato: " + g.name +"- edad: " +g.edad);
+                }
+            );
+
+            for (let c = 0; c < enemyCols; c++) {
+                console.log("iteracion " + c);
+                enemies.push("enemy " + c);
+            }
+        }
+        //pruebas();
+
+
+        function calculateEnemies(columns) {
+            enemies= []
+            let xPoint = 0;
+            let yPoint = 0;
+            for (let c = 0; c < columns; c++) {
+                let vivo = true
+                //console.log("iteracion " + c);
+                xPoint = c * (enemyWidth + enemyPadding);
+                // if ( c == 2) {
+                //     vivo = false;
+                // }
+                enemies.push(
+                    {
+                       x: xPoint,
+                       y: yPoint,
+                       width: enemyWidth,
+                       height: enemyHeight,
+                       alive: vivo 
+                    }
+                );
+            }
+            console.log("caltulate finalizado");
+
+        //    for (let c = 0; c < enemyCols; c++) {
+        //         const x = c * (enemyWidth + enemyPadding) + enemyOffsetLeft;
+        //         const y = r * (enemyHeight + enemyPadding) + enemyOffsetTop;
+        //         enemies.push({ x: x, y: y, width: enemyWidth, height: enemyHeight, alive: true });
+        //     }
+
+            console.log(enemies);
+        }
+        calculateEnemies(enemyCols);
+
+        function redibujar(){
+            let filas=5;
+            filas = document.getElementById("nFilas").value;
+            console.log(filas)
+            calculateEnemies(filas);
+            draw();
+        }
+
+        function update(){
+            console.log("corre update")
+        }
+
+        function draw(){
+            console.log("corre draw")
+
+            // Limpiar el lienzo antes de redibujar el nuevo cuadro
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            enemies.forEach(
+                (e) => {
+                    if (e.alive) {
+                        //console.log("posicion elemento: " + e.x);
+                        ctx.fillStyle = '#ffcc00';
+                        ctx.fillRect(e.x, e.y, e.width, e.height);
+                    }
+                }
+            );
+
+        }
+
+        function loop() {
+            update();
+            draw();
+        }
+
+        loop(); // Iniciar juego
+
+        console.log("pagina cargada");
+    </script>
+</body>
+</html>
